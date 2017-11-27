@@ -1,9 +1,3 @@
 
-fn take(v: &mut Vec<i32>) {
-    v[0] = 42
-}
-fn main() {
-    let v = vec![1, 2, 3];
-    take(&mut v);
-    let x = v[0];
-}
+fn bar(v: Vec<&mut i32>) { }
+fn main() { let x = 42; bar(vec![& x]); }

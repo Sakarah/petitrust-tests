@@ -16,5 +16,6 @@ fn main() {
     print(&v);
     v[2] = 42;
     print(&v);
+    if v.len() == 4 { print!("len() OK\n") } else { print!("bad len()\n") }
 }
 

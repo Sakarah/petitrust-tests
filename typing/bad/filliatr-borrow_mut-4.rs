@@ -1,2 +1,9 @@
 
-fn main() { let mut x = 40; let y = &mut x; *y = *y + 1; x = x + 1; }
+fn take(v: &mut Vec<i32>) {
+    v[0] = 42
+}
+fn main() {
+    let v = vec![1, 2, 3];
+    take(&v);
+    let x = v[0];
+}

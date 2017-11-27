@@ -11,17 +11,17 @@ fn print(x: i32) {
 
 fn iter(l: &L) {
     print(l.head);
-    if l.next.len() != 0 { iter(& (&l.next)[0]); }
+    if l.next.len() != 0 { iter(& l.next[0]); }
 }
 
 fn succ(l: &mut L) {
     l.head = l.head + 1;
-    if l.next.len() != 0 { succ(&mut (&mut l.next)[0]); }
+    if l.next.len() != 0 { succ(&mut l.next[0]); }
 }
 
 fn append(l1: &mut L, l2: L) {
     if l1.next.len() == 0 { l1.next = vec![l2]; }
-    else { append(&mut (&mut l1.next)[0], l2); }
+    else { append(&mut l1.next[0], l2); }
 }
 
 fn append2(mut l1: &mut L, l2: L) {

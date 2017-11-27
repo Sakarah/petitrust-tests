@@ -17,7 +17,7 @@ echo
 
 # tous les tests passent avec rustc
 test_rustc() {
-echo -n "bad syntax... "
+echo -n "syntax... "
 for f in syntax/bad/*.rs; do
     if rustc $f -o a.out > /dev/null 2>&1 ; then
       echo "succès de rustc sur $f"; exit 1
@@ -25,12 +25,12 @@ for f in syntax/bad/*.rs; do
 done
 echo "OK"
 
-echo -n "bad typing... "
-for f in syntax/good/*.rs typing/good/*.rs exec/*.rs exec-fail/*.rs; do
-    rustc $f -o a.out  > /dev/null 2>&1 ||
+echo -n "typing... "
+for f in syntax/good/*.rs typing/good/*.rs typing2/good/*.rs exec/*.rs exec-fail/*.rs; do
+    rustc --emit=dep-info $f -o a.out  > /dev/null 2>&1 ||
      (echo "echec de rustc sur $f"; exit 1)
 done
-for f in typing/bad/*.rs; do
+for f in typing/bad/*.rs typing2/bad/*.rs; do
     if rustc $f -o a.out > /dev/null 2>&1 ; then
       echo "succès de rustc sur $f"; exit 1
     fi
@@ -104,7 +104,7 @@ echo
 
 # les bons
 echo -n "bons "
-for f in syntax/good/*.rs typing/bad/*.rs typing/good/*.rs exec/*.rs exec-fail/*.rs; do
+for f in syntax/good/*.rs typing/bad/*.rs typing/good/*.rs typing2/bad/*.rs typing2/good/*.rs exec/*.rs exec-fail/*.rs; do
     echo -n ".";
     max=`expr $max + 1`;
     compile --parse-only $f;
@@ -154,10 +154,58 @@ echo
 
 # les bons
 echo -n "bons "
-for f in typing/good/*.rs exec/*.rs exec-fail/*.rs; do
+for f in typing/good/*.rs typing2/bad/*.rs typing2/good/*.rs exec/*.rs exec-fail/*.rs; do
     echo -n ".";
     max=`expr $max + 1`;
     compile --type-only $f;
+    case $? in
+	"1")
+	echo
+	echo "ECHEC sur "$f" (devrait reussir)";;
+	"0") score=`expr $score + 1`;;
+	*)
+	echo
+	echo "ECHEC sur "$f" (pour une mauvaise raison)";;
+    esac
+done
+echo
+
+percent=`expr 100 \* $score / $max`;
+
+echo    "Typage  : $score/$max : $percent%";
+}
+
+partie2b () {
+echo
+echo "Partie 2b"
+
+score=0
+max=0
+
+# les mauvais
+echo -n "mauvais "
+for f in typing2/bad/*.rs; do
+    echo -n ".";
+    max=`expr $max + 1`;
+    compile --no-asm $f;
+    case $? in
+	"0")
+	echo
+	echo "ECHEC sur "$f" (devrait échouer)";;
+	"1") score=`expr $score + 1`;;
+	*)
+	echo
+	echo "ECHEC sur "$f" (pour une mauvaise raison)";;
+    esac
+done
+echo
+
+# les bons
+echo -n "bons "
+for f in typing2/good/*.rs exec/*.rs exec-fail/*.rs; do
+    echo -n ".";
+    max=`expr $max + 1`;
+    compile --no-asm $f;
     case $? in
 	"1")
 	echo
@@ -190,19 +238,19 @@ echo "Partie 3"
 echo "Execution normale"
 echo "-----------------"
 
-timeout="why3-cpulimit 30 0 -h"
-spim="spim -ldata 20000000 -lstack 20000000"
+# timeout="why3-cpulimit 30 0 -h"
+timeout=""
 
 for f in exec/*.rs; do
     echo -n "."
-    mips=exec/`basename $f .rs`.s
-    rm -f $mips
+    asm=exec/`basename $f .rs`.s
+    rm -f $asm
     expected=exec/`basename $f .rs`.out
     max=`expr $max + 1`;
     if compile $f; then
 	rm -f out
 	score_comp=`expr $score_comp + 1`;
-	if $timeout $spim -file $mips | grep -v SPIM | grep -v Copyright | grep -v Reserved | grep -v README | grep -v Loaded > out; then
+	if gcc $asm && ./a.out > out; then
 	    score_out=`expr $score_out + 1`;
 	    if cmp --quiet out $expected; then
 		score_test=`expr $score_test + 1`;
@@ -226,22 +274,17 @@ echo "-------------------------------"
 
 for f in exec-fail/*.rs; do
     echo -n "."
-    mips=exec-fail/`basename $f .rs`.s
-    rm -f $mips
+    asm=exec-fail/`basename $f .rs`.s
+    rm -f $asm
     max=`expr $max + 1`;
-    if compile $f; then
+    if compile $f && gcc $asm; then
 	score_comp=`expr $score_comp + 1`;
-	if $timeout $spim -file $mips > out; then
-	    if grep -q TypeError out; then
-		score_test=`expr $score_test + 1`;
-	        score_out=`expr $score_out + 1`;
-	    else
-		echo
-		echo "ECHEC : le code $f devrait échouer"
-	    fi
+	if { ./a.out; } > /dev/null 2>&1; then
+	    echo
+	    echo "ECHEC : le code $f devrait échouer"
 	else
-		score_test=`expr $score_test + 1`;
-	        score_out=`expr $score_out + 1`;
+	    score_test=`expr $score_test + 1`;
+	    score_out=`expr $score_out + 1`;
 	fi
     else
 	echo
@@ -260,12 +303,13 @@ echo "Code produit : $score_out/$max : $percent%";
 percent=`expr 100 \* $score_test / $max`;
 echo "Comportement du code : $score_test/$max : $percent%";}
 
-
 case $option in
     "-1" )
         partie1;;
     "-2" )
         partie2;;
+    "-2b" )
+        partie2b;;
     "-3" )
         partie3;;
     "-v1" )
@@ -274,12 +318,16 @@ case $option in
     "-v2" )
     	verbose=1;
         partie2;;
+    "-v2b" )
+    	verbose=1;
+        partie2;;
     "-v3" )
     	verbose=1;
         partie3;;
     "-all" )
     	partie1;
     	partie2;
+    	partie2b;
     	partie3;;
     "-rustc" )
         test_rustc;;
@@ -288,12 +336,12 @@ case $option in
         echo "spécifier une option parmi : "
         echo "-1      : tester la partie 1"
         echo "-2      : tester la partie 2"
+        echo "-2b     : tester la partie 2b"
         echo "-3      : tester la partie 3"
         echo "-v1     : tester la partie 1 (verbose)"
         echo "-v2     : tester la partie 2 (verbose)"
         echo "-v3     : tester la partie 3 (verbose)"
-        echo "-all    : tout tester"
-        echo "-rustc  : vérifie les tests avec rustc";;
+        echo "-all    : tout tester";;
 
 esac
 echo

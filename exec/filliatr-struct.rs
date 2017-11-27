@@ -22,10 +22,10 @@ fn print_s(s: &S) {
 
 fn foo(s: &mut S) {
     print!("entering foo...\n");
-    print_s(&s);
+    print_s(s);
     if s.b { s.i = - s.i; }
     s.b = ! s.b;
-    print_s(&s);
+    print_s(s);
     print!("...leaving foo\n");
 }
 

@@ -1,2 +1,8 @@
 
-fn main() { let mut x = 41; let y = & x; x = x + 1; }
+fn main() {
+    let mut a = 41;
+    let mut b = 42;
+    let y = &mut b;
+    y = &mut a;
+    *y = 42;
+}

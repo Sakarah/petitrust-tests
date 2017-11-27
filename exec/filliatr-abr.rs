@@ -14,11 +14,13 @@ fn is_null(a: & BST) -> bool {
     a.sub.len() == 0
 }
 
-fn left(a: & BST) -> & BST { & a.sub[0] }
-fn right(a: & BST) -> & BST { & a.sub[1] }
+// Petit Rust ne permet pas de définir ces raccourcis ; tant pis...
 
-fn left_mut(a: &mut BST) -> &mut BST { &mut a.sub[0] }
-fn right_mut(a: &mut BST) -> &mut BST { &mut a.sub[1] }
+// fn left(a: & BST) -> & BST { & a.sub[0] }
+// fn right(a: & BST) -> & BST { & a.sub[1] }
+
+// fn left_mut(a: &mut BST) -> &mut BST { &mut a.sub[0] }
+// fn right_mut(a: &mut BST) -> &mut BST { &mut a.sub[1] }
 
 fn leaf(v: i32) -> BST {
     let r = BST { value: v, sub: vec![null(), null()] };
@@ -28,22 +30,22 @@ fn leaf(v: i32) -> BST {
 fn insert(a: &mut BST, x: i32) {
   if x == a.value { return; }
   if x < a.value {
-    if is_null(left(a))
+    if is_null(& a.sub[0])
       { a.sub[0] = leaf(x); }
     else
-      { insert(left_mut(a), x); }
+      { insert(&mut a.sub[0], x); }
   } else {
-    if is_null(right(a))
+    if is_null(& a.sub[1])
       { a.sub[1] = leaf(x); }
     else
-      { insert(right_mut(a), x); }
+      { insert(&mut a.sub[1], x); }
   }
 }
 
 fn contient(a: & BST, x: i32) -> bool {
   if x == a.value { return true; }
-  if x < a.value && !is_null(left(a)) { return contient(left(a), x); }
-  if !is_null(right(a)) { return contient(right(a), x); }
+  if x < a.value && !is_null(& a.sub[0]) { return contient(& a.sub[0], x); }
+  if !is_null(& a.sub[1]) { return contient(& a.sub[1], x); }
   return false;
 }
 
@@ -59,9 +61,9 @@ fn print_int(x: i32) {
 
 fn print(a: & BST) {
     print!("(");
-    if !is_null(left(a)) { print(left(a)) }
+    if !is_null(& a.sub[0]) { print(& a.sub[0]) }
     print_int(a.value);
-    if !is_null(right(a)) { print(right(a)) }
+    if !is_null(& a.sub[1]) { print(& a.sub[1]) }
     print!(")");
 }
 
