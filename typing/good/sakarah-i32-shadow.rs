@@ -5,7 +5,8 @@ struct i32
 
 fn not(a: i32) -> i32
 {
-    i32 { a: !a.a }
+    let b = i32 { a: !a.a };
+    b
 }
 
 fn main()
