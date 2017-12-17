@@ -5,6 +5,6 @@ struct bool
 
 fn main()
 {
-    let b = bool { a: 195387 };
+    let mut b = bool { a: 195387 };
     b = true;
 }
