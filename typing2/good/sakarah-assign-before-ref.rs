@@ -6,7 +6,8 @@ fn main()
     {
         if true
         {
-            a1 = A { v:10 };
+            let aa = A { v:10 };
+            a1 = aa;
         }
         let b = &a1;
         b.v;
