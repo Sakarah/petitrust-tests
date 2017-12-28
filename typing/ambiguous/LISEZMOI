@@ -1,0 +1,7 @@
+Ici se trouvent les cas un peu étrange qui ont un comportement en Rust qui ne
+semble pas correspondre forcément à celui demandé en Petit Rust.
+
+Vous pouvez tester vos résultats par rapport à rustc sur ces tests avec
+l'option -a2. Il n'est a mon avis pas nécessaire de suivre rustc
+systématiquement sur ces tests là surtout qu'il semble qu'il ne donne pas
+toujours les mêmes résultats selon les versions.

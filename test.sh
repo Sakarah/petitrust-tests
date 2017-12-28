@@ -63,6 +63,9 @@ for f in exec-fail/*.rs; do
       echo "échec de rustc sur $f"; exit 1
     fi
 done
+
+rm a.out
+rm out
 }
 
 compile () {
@@ -173,6 +176,42 @@ echo
 percent=`expr 100 \* $score / $max`;
 
 echo    "Typage  : $score/$max : $percent%";
+}
+
+partiea2 () {
+echo
+echo "Tests ambigüs partie 2"
+
+for f in typing/ambiguous/*.rs; do
+    echo -n "."
+    if rustc $f -o a.out > /dev/null 2>&1; then
+        compile --type-only $f;
+        case $? in
+        "0") ;;
+        "1")
+            echo
+            echo "échec sur "$f" alors que rustc réussit";;
+        *)
+            echo
+            echo "ECHEC (pour une mauvaise raison)";;
+        esac
+    else
+        compile --type-only $f;
+        case $? in
+        "0")
+            echo
+            echo "réussite sur "$f" alors que rustc échoue";;
+        "1") ;;
+        *)
+            echo
+            echo "ECHEC (pour une mauvaise raison)";;
+        esac
+    fi
+
+
+done
+
+rm a.out
 }
 
 partie2b () {
@@ -308,6 +347,8 @@ case $option in
         partie1;;
     "-2" )
         partie2;;
+    "-a2" )
+        partiea2;;
     "-2b" )
         partie2b;;
     "-3" )
@@ -334,14 +375,16 @@ case $option in
     * )
         echo "usage : $0 <option> <compilo>"
         echo "spécifier une option parmi : "
-        echo "-1      : tester la partie 1"
-        echo "-2      : tester la partie 2"
-        echo "-2b     : tester la partie 2b"
-        echo "-3      : tester la partie 3"
-        echo "-v1     : tester la partie 1 (verbose)"
-        echo "-v2     : tester la partie 2 (verbose)"
-        echo "-v3     : tester la partie 3 (verbose)"
-        echo "-all    : tout tester";;
+        echo "-1      : tester la syntaxe"
+        echo "-2      : tester le typage"
+        echo "-a2     : tester la partie ambigue du typage"
+        echo "-2b     : tester le typage des ressources"
+        echo "-3      : tester la production de code"
+        echo "-v1     : tester la syntaxe (verbose)"
+        echo "-v2     : tester le typage (verbose)"
+        echo "-v3     : tester le typage des ressources (verbose)"
+        echo "-all    : tout tester"
+        echo "-rustc  : vérifier les tests sur le compilateur 'rustc'";;
 
 esac
 echo
