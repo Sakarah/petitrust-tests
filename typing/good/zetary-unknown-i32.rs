@@ -5,6 +5,5 @@ fn main()
 {
 	let v = vec![];
 	let s = S{a:v};
-	let w = s.a;
-	let t = T{b:w};
+	let t = T{b:v};
 }
