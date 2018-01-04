@@ -4,7 +4,7 @@ fn foo()->Vec<i32>
 	let y=x;
 	let a = vec![0];
 	let b = a;
-	{return y;}
+	{return y;};
 	let z=x;
 	z;
 	a[0];
