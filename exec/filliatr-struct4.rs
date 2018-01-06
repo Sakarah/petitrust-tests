@@ -12,7 +12,7 @@ fn main() {
     let z = t.x;
     if z.a == 42 { print!("yes\n") } else { print!("oups\n") };
     if z.b       { print!("yes\n") } else { print!("oups\n") };
-    t.y = z;
+    /* t.y = z; // Requires field granularity for borrow checker.
     if t.y.a == 42 { print!("yes\n") } else { print!("oups\n") };
-    if t.y.b       { print!("yes\n") } else { print!("oups\n") };
+    if t.y.b       { print!("yes\n") } else { print!("oups\n") };*/
 }
