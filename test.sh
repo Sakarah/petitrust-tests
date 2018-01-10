@@ -283,13 +283,14 @@ timeout=""
 for f in exec/*.rs; do
     echo -n "."
     asm=exec/`basename $f .rs`.s
+    obj=exec/`basename $f .rs`.o
     rm -f $asm
     expected=exec/`basename $f .rs`.out
     max=`expr $max + 1`;
     if compile $f; then
 	rm -f out
 	score_comp=`expr $score_comp + 1`;
-	if gcc $asm && ./a.out > out; then
+	if as $asm -o $obj && ld $obj && ./a.out > out; then
 	    score_out=`expr $score_out + 1`;
 	    if cmp --quiet out $expected; then
 		score_test=`expr $score_test + 1`;
@@ -316,7 +317,7 @@ for f in exec-fail/*.rs; do
     asm=exec-fail/`basename $f .rs`.s
     rm -f $asm
     max=`expr $max + 1`;
-    if compile $f && gcc $asm; then
+    if compile $f && as $asm -o $obj && ld $obj; then
 	score_comp=`expr $score_comp + 1`;
 	if { ./a.out; } > /dev/null 2>&1; then
 	    echo
